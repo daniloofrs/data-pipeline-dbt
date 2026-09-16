@@ -1,0 +1,31 @@
+name: 'currency_pipeline'
+version: '1.0.0'
+config-version: 2
+
+profile: 'currency_pipeline'
+
+model-paths: ["models"]
+macro-paths: ["macros"]
+test-paths: ["tests"]
+seed-paths: ["seeds"]
+target-path: "target"
+clean-targets:
+  - "target"
+  - "dbt_packages"
+
+models:
+  currency_pipeline:
+    +persist_docs:
+      relation: true
+      columns: true
+
+    # Camada Silver: limpeza, tipagem e deduplicacao.
+    # Views mantem o custo baixo e o dado sempre atualizado.
+    staging:
+      +materialized: view
+      +schema: staging
+
+    # Camada Gold: metricas de negocio materializadas para consumo analitico.
+    marts:
+      +materialized: table
+      +schema: marts

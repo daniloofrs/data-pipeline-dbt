@@ -1,0 +1,16 @@
+# Conexao do dbt com o Postgres do docker-compose.
+# As credenciais vem do .env (env_var) - nenhum segredo fica versionado.
+currency_pipeline:
+  target: dev
+  outputs:
+    dev:
+      type: postgres
+      host: "{{ env_var('POSTGRES_HOST', 'localhost') }}"
+      port: "{{ env_var('POSTGRES_PORT', '5433') | int }}"
+      user: "{{ env_var('POSTGRES_USER', 'dbt_user') }}"
+      password: "{{ env_var('POSTGRES_PASSWORD', 'dbt_password') }}"
+      dbname: "{{ env_var('POSTGRES_DB', 'data_warehouse') }}"
+      schema: public
+      threads: 4
+      keepalives_idle: 0
+      connect_timeout: 10

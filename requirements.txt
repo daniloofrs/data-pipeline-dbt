@@ -1,0 +1,8 @@
+# Ingestao (camada Bronze)
+requests==2.34.2
+psycopg2-binary==2.9.13
+python-dotenv==1.2.3
+
+# Transformacao (camadas Silver e Gold)
+dbt-core==1.12.5
+dbt-postgres==1.11.0

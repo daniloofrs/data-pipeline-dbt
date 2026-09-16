@@ -1,0 +1,53 @@
+version: 2
+
+sources:
+  - name: raw
+    description: "Camada Bronze - dados crus gravados pelo script de ingestao Python."
+    database: data_warehouse
+    schema: raw
+
+    tables:
+      - name: currency_quotes
+        description: "Uma linha por cotacao retornada pela AwesomeAPI, com o payload JSON original preservado."
+        loaded_at_field: ingested_at
+        freshness:
+          warn_after: {count: 48, period: hour}
+          error_after: {count: 168, period: hour}
+        columns:
+          - name: id
+            description: "Chave primaria tecnica da ingestao."
+            data_tests:
+              - unique
+              - not_null
+          - name: batch_id
+            description: "Identificador da execucao de ingestao (linhagem)."
+            data_tests:
+              - not_null
+          - name: currency_pair
+            description: "Par de moedas solicitado a API (ex.: USD-BRL)."
+            data_tests:
+              - not_null
+          - name: payload
+            description: "Resposta JSON crua da API, sem transformacao."
+            data_tests:
+              - not_null
+          - name: ingested_at
+            description: "Momento em que a linha foi gravada no data warehouse."
+            data_tests:
+              - not_null
+
+      - name: ingestion_runs
+        description: "Log de auditoria das execucoes de ingestao (observabilidade do pipeline)."
+        columns:
+          - name: batch_id
+            description: "Identificador da execucao."
+            data_tests:
+              - unique
+              - not_null
+          - name: status
+            description: "Resultado da execucao."
+            data_tests:
+              - not_null
+              - accepted_values:
+                  arguments:
+                    values: ['RUNNING', 'SUCCESS', 'FAILED']

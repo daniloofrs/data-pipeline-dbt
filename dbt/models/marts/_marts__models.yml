@@ -1,0 +1,192 @@
+version: 2
+
+models:
+  - name: dim_currency_pairs
+    description: >
+      Camada Gold. Dimensao com um registro por par de moedas monitorado,
+      incluindo o periodo coberto pelo historico e sinalizacao de par ativo.
+    columns:
+      - name: currency_pair_key
+        description: "Chave substituta da dimensao."
+        data_tests:
+          - unique
+          - not_null
+
+      - name: currency_pair
+        description: "Par de moedas (ex.: USD-BRL)."
+        data_tests:
+          - unique
+          - not_null
+
+      - name: base_currency
+        description: "Moeda base do par."
+        data_tests:
+          - not_null
+
+      - name: quote_currency
+        description: "Moeda de cotacao do par."
+        data_tests:
+          - not_null
+
+      - name: total_quotes
+        description: "Quantidade de cotacoes ja carregadas para o par."
+        data_tests:
+          - not_null
+          - positive_value
+
+      - name: first_quote_date
+        description: "Data da cotacao mais antiga disponivel."
+        data_tests:
+          - not_null
+
+      - name: last_quote_date
+        description: "Data da cotacao mais recente disponivel."
+        data_tests:
+          - not_null
+
+      - name: is_active
+        description: "Verdadeiro quando ha cotacao nos ultimos 7 dias."
+
+  - name: fct_currency_daily
+    description: >
+      Camada Gold. Fato diario com grao (currency_pair, quote_date): fechamento,
+      maxima, minima, variacao contra o dia anterior, medias moveis de 7 e 30 dias
+      e volatilidade movel.
+    columns:
+      - name: daily_quote_key
+        description: "Chave substituta do grao diario."
+        data_tests:
+          - unique
+          - not_null
+
+      - name: currency_pair_key
+        description: "Chave estrangeira para dim_currency_pairs."
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_currency_pairs')
+                field: currency_pair_key
+
+      - name: currency_pair
+        description: "Par de moedas."
+        data_tests:
+          - not_null
+
+      - name: quote_date
+        description: "Data de negocio da cotacao."
+        data_tests:
+          - not_null
+
+      - name: close_bid_price
+        description: "Preco de compra no fechamento do dia."
+        data_tests:
+          - not_null
+          - positive_value
+
+      - name: high_price
+        description: "Maior preco observado no dia."
+
+      - name: low_price
+        description: "Menor preco observado no dia."
+
+      - name: daily_change_pct
+        description: "Variacao percentual do fechamento contra o dia anterior."
+
+      - name: moving_avg_7d
+        description: "Media movel de 7 dias do preco de fechamento."
+
+      - name: moving_avg_30d
+        description: "Media movel de 30 dias do preco de fechamento."
+
+      - name: volatility_7d
+        description: "Desvio padrao movel de 7 dias do preco de fechamento."
+
+      - name: daily_trend
+        description: "Tendencia do dia em relacao ao anterior."
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ['ALTA', 'BAIXA', 'ESTAVEL', 'SEM_REFERENCIA']
+
+  - name: agg_currency_monthly_metrics
+    description: >
+      Camada Gold. Agregacao mensal por par: abertura, fechamento, media,
+      amplitude, volatilidade absoluta e relativa e contagem de dias de alta/baixa.
+    columns:
+      - name: monthly_metrics_key
+        description: "Chave substituta do grao mensal."
+        data_tests:
+          - unique
+          - not_null
+
+      - name: currency_pair_key
+        description: "Chave estrangeira para dim_currency_pairs."
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_currency_pairs')
+                field: currency_pair_key
+
+      - name: currency_pair
+        description: "Par de moedas."
+        data_tests:
+          - not_null
+
+      - name: month_start_date
+        description: "Primeiro dia do mes de referencia."
+        data_tests:
+          - not_null
+
+      - name: year_month
+        description: "Mes de referencia no formato YYYY-MM."
+        data_tests:
+          - not_null
+
+      - name: trading_days
+        description: "Dias com cotacao no mes."
+        data_tests:
+          - not_null
+          - positive_value
+
+      - name: avg_bid_price
+        description: "Preco medio de compra no mes."
+        data_tests:
+          - not_null
+          - positive_value
+
+      - name: month_change_pct
+        description: "Variacao percentual entre abertura e fechamento do mes."
+
+      - name: volatility_pct
+        description: "Volatilidade relativa ao preco medio, comparavel entre moedas."
+
+      - name: month_trend
+        description: "Classificacao do mes."
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ['VALORIZACAO', 'DESVALORIZACAO', 'ESTAVEL']
+
+  - name: mart_pipeline_health
+    description: >
+      Camada Gold. Observabilidade do pipeline: execucoes, taxa de sucesso,
+      volume ingerido e duracao media por dia.
+    columns:
+      - name: run_date
+        description: "Data das execucoes."
+        data_tests:
+          - unique
+          - not_null
+
+      - name: total_runs
+        description: "Execucoes iniciadas no dia."
+        data_tests:
+          - not_null
+          - positive_value
+
+      - name: success_rate_pct
+        description: "Percentual de execucoes concluidas com sucesso."

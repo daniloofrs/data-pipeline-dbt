@@ -1,0 +1,106 @@
+version: 2
+
+models:
+  - name: stg_currency_quotes
+    description: >
+      Camada Silver. Cotacoes limpas: campos extraidos do JSON, tipos corrigidos,
+      registros sem preco ou sem carimbo de tempo descartados e duplicatas
+      removidas pelo grao (currency_pair, quoted_at).
+    columns:
+      - name: quote_key
+        description: "Chave substituta do grao: hash de (currency_pair, quoted_at)."
+        data_tests:
+          - unique
+          - not_null
+
+      - name: quote_id
+        description: "Id da linha de origem na camada Bronze."
+        data_tests:
+          - unique
+          - not_null
+
+      - name: currency_pair
+        description: "Par de moedas (ex.: USD-BRL)."
+        data_tests:
+          - not_null
+
+      - name: currency_pair_name
+        description: "Nome legivel do par, como devolvido pela API."
+
+      - name: base_currency
+        description: "Moeda base do par (USD em USD-BRL)."
+        data_tests:
+          - not_null
+
+      - name: quote_currency
+        description: "Moeda de cotacao do par (BRL em USD-BRL)."
+        data_tests:
+          - not_null
+
+      - name: bid_price
+        description: "Preco de compra. Garantidamente nao nulo e positivo."
+        data_tests:
+          - not_null
+          - positive_value
+
+      - name: ask_price
+        description: "Preco de venda."
+
+      - name: high_price
+        description: "Maior preco do dia."
+
+      - name: low_price
+        description: "Menor preco do dia."
+
+      - name: spread_abs
+        description: "Diferenca absoluta entre preco de venda e de compra."
+
+      - name: variation_pct
+        description: "Variacao percentual do dia, conforme a fonte."
+
+      - name: quoted_at
+        description: "Instante da cotacao (convertido do epoch da API)."
+        data_tests:
+          - not_null
+
+      - name: quote_date
+        description: "Data de negocio da cotacao no fuso America/Sao_Paulo."
+        data_tests:
+          - not_null
+
+      - name: ingested_at
+        description: "Momento da ingestao na camada Bronze."
+        data_tests:
+          - not_null
+
+  - name: stg_ingestion_runs
+    description: >
+      Camada Silver. Log das execucoes do pipeline de ingestao, com duracao
+      calculada - base para monitorar a saude do pipeline.
+    columns:
+      - name: batch_id
+        description: "Identificador da execucao de ingestao."
+        data_tests:
+          - unique
+          - not_null
+
+      - name: run_status
+        description: "Status final da execucao."
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ['RUNNING', 'SUCCESS', 'FAILED']
+
+      - name: rows_ingested
+        description: "Quantidade de linhas gravadas na camada Bronze."
+        data_tests:
+          - not_null
+
+      - name: duration_seconds
+        description: "Duracao da execucao em segundos."
+
+      - name: started_at
+        description: "Inicio da execucao."
+        data_tests:
+          - not_null
