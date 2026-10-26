@@ -22,6 +22,7 @@ negócio com **dbt**, seguindo a **Arquitetura Medallion** (Bronze → Silver �
 | **Transformação** | dbt-postgres, 6 modelos em 2 camadas + 1 macro + 1 teste genérico customizado |
 | **Qualidade** | **71 testes** automatizados (`unique`, `not_null`, `accepted_values`, `relationships`, `positive_value`) |
 | **Observabilidade** | Tabela de execuções + mart de saúde do pipeline |
+| **Metodologia** | Arquitetura Medalhão concebida pelo autor e implementada com suporte de **Claude Code** (AI Pair Programming) |
 
 ---
 
@@ -289,6 +290,16 @@ WHERE quote_date = (SELECT MAX(quote_date) FROM marts.fct_currency_daily);
 -- O pipeline rodou hoje e trouxe dado?
 SELECT * FROM marts.mart_pipeline_health ORDER BY run_date DESC;
 ```
+
+---
+
+## 🤖 Metodologia & Engenharia Assistida por IA
+
+Este repositório foi desenvolvido sob a abordagem de **AI Pair Programming / Engenharia Acelerada por IA** com o **Claude Code (Anthropic)**:
+
+* **Arquitetura & Requisitos (Danilo Fernandes):** Concepção da modelagem dimensional Medalhão (Bronze → Silver → Gold), desenho do fluxo de ingestão, definição das regras de negócio de câmbio e especificação dos critérios de aceitação para validação dos dados.
+* **Aceleração via IA:** Geração assistida do boilerplate dos modelos SQL/Jinja no dbt, estruturação exaustiva dos 71 testes no schema.yml e orquestração dos contêineres Docker Compose.
+* **Governança Técnica:** Revisão minuciosa de cada camada, validação prática no terminal e execução de testes de integridade localmente.
 
 ---
 
