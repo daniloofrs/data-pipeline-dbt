@@ -4,6 +4,7 @@ Pipeline de dados **end-to-end** que coleta cotações de moedas de uma API púb
 armazena o dado bruto em um PostgreSQL containerizado e o transforma em métricas de
 negócio com **dbt**, seguindo a **Arquitetura Medallion** (Bronze → Silver → Gold).
 
+[![CI](https://github.com/daniloofrs/data-pipeline-dbt/actions/workflows/ci.yml/badge.svg)](https://github.com/daniloofrs/data-pipeline-dbt/actions/workflows/ci.yml)
 ![Python](https://img.shields.io/badge/Python-3.11+-3776AB?logo=python&logoColor=white)
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-4169E1?logo=postgresql&logoColor=white)
 ![dbt](https://img.shields.io/badge/dbt-1.12-FF694B?logo=dbt&logoColor=white)
